@@ -1,8 +1,7 @@
 const mysql = require('mysql')
-const { MYSAL_CONF } = require('../conf/db')
-
+const { MYSQL_CONF } = require('../conf/db')
 // 创建连接对象
-const con = mysql.createConnection(MYSAL_CONF)
+const con = mysql.createConnection(MYSQL_CONF)
 
 // 开始连接
 con.connect()

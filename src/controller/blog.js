@@ -1,49 +1,59 @@
+const { exec } = require('../db/mysql')
+
 const getList = (author, keyword) => {
-  // 先返回假数据（格式是正确的）
-  return [
-    {
-      id: 1,
-      title: '标题A',
-      content: '内容A',
-      createTime: 1575372992187,
-      author: 'jimson'
-    },
-    {
-      id: 2,
-      title: '标题B',
-      content: '内容B',
-      createTime: 1575373045667,
-      author: 'jimson'
-    }
-  ]
+  let sql = 'select * from blogs where 1=1'
+  if(author){
+    sql += ` and author='${author}' `
+  }
+  if(keyword) {
+    sql += ` and title like '%${keyword}%' `
+  }
+  sql += ' order by createtime desc;'
+  return exec(sql)
 }
 
 const getDetail = (id) => {
-  return {
-    id: 1,
-    title: '标题A',
-    content: '内容A',
-    createTime: 1575372992187,
-    author: 'jimson'
-  }
+  const sql = `select * from blogs where id=${id}`
+  return exec(sql).then(rows => {
+    return rows[0]
+  })
 }
 
 const newBlog = (blogData = {}) => {
-  //blogData 是一个博客对象，包含title content 属性
-  return {
-    id: 3
-  }
+  //blogData 是一个博客对象，包含title content author属性
+  let {title, content, author} = blogData
+  const createtime = Date.now()
+  const sql = `insert into blogs (title, content, author, createtime) values ('${title}', '${content}', '${author}', ${createtime});`
+  return exec(sql).then(insertData => {
+    return {
+      id: insertData.insertId
+    }
+  })
 }
 
 const updateBlog = (id, blogData = {}) => {
   // id 就是要更新博客的id
   // blogData 是一个博客对象，包含title content 属性
-  return true
+  let {title, content} = blogData
+  const sql = `update blogs set title='${title}', content='${content}' where id=${id};`
+  return exec(sql).then(updataData => {
+    if(updataData.affectedRows > 0){
+      return true
+    }
+    return false
+  })
 }
 
-const delBlog = (id) => {
-  // id 就是要删除博客的id
-  return true
+const delBlog = (id, author) => {
+  // id 、要删除博客的id
+  // author 博客的作者
+  const sql = `delete from blogs where id=${id} and author='${author}';`
+  return exec(sql).then(delData => {
+    if(delData.affectedRows > 0){
+      return true
+    }
+    return false
+  })
 }
 module.exports = {
   getList,
